@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# virtual env
+venv/
+.env
+
+# mac
+.DS_Store
+
+# vector database
+vectorstore/
+
+# temporary files
+*.tmp
+*.log
+
+# data/pdf
+*.pdf
