@@ -1,169 +1,163 @@
-#  AI Engineering Copilot
+<div align="center">
 
-AI Engineering Copilot is a **Retrieval-Augmented Generation (RAG) assistant** that allows users to upload technical PDF documents and ask questions about their content using a **local Large Language Model (LLM)**.
+# AI Engineering Copilot
 
-The system retrieves relevant document sections using semantic search and generates answers with **source citations and page numbers**.
+**RAG · Local LLM · Semantic Search · Query Routing · Streamlit**
 
----
+[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![LangChain](https://img.shields.io/badge/LangChain-Framework-1C3C3C?style=flat-square)](https://langchain.com)
+[![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-black?style=flat-square)](https://ollama.com)
+[![FAISS](https://img.shields.io/badge/FAISS-Vector%20DB-0078D4?style=flat-square)](https://faiss.ai)
+[![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io)
 
-#  Features
-
-✔ Upload multiple PDF documents  
-✔ Ask questions about technical documents  
-✔ Retrieval-Augmented Generation (RAG) pipeline  
-✔ Semantic search using HuggingFace embeddings  
-✔ Vector database for document retrieval  
-✔ Local LLM inference using **Ollama**  
-✔ Chat interface built with **Streamlit**  
-✔ Source citations with file name and page number  
-✔ Document summarization  
-✔ File listing capability  
-✔ Chat history maintained during session  
+</div>
 
 ---
 
-#  System Architecture
+## Overview
+
+A **RAG-powered AI assistant** designed for engineering and technical document Q&A. Load PDF documents, ask questions in natural language, and get accurate, source-traced answers — all running **fully locally** with no API keys or cloud dependencies.
+
+Built with LangChain, FAISS vector search, HuggingFace embeddings, and Ollama local LLM inference, with a clean **Streamlit web UI**.
+
+---
+
+## How It Works
 
 ```
-User Question
-     ↓
-Streamlit Chat Interface
-     ↓
-Retriever (Vector Search)
-     ↓
-Relevant Document Chunks
-     ↓
-Local LLM (Ollama)
-     ↓
-Generated Answer + Sources
+PDF Documents
+      │
+      ▼
+  Document Loading & Chunking
+  (PyPDF · RecursiveCharacterTextSplitter)
+      │
+      ▼
+  Vector Embeddings
+  (sentence-transformers/all-MiniLM-L6-v2)
+      │
+      ▼
+  FAISS Vector Store
+      │
+      ▼
+  Query Router ──► list_files / summarize_all / qa
+      │
+      ├── Q&A ──► Similarity Search → Context → Ollama LLM → Streamed Answer + Sources
+      │
+      └── Summarize ──► Per-file summarization via LLM
 ```
 
-This architecture follows the **Retrieval-Augmented Generation (RAG)** pattern commonly used in production AI systems.
+---
+
+## Features
+
+| Feature | Detail |
+|---|---|
+| **Multi-PDF support** | Load and query across multiple documents simultaneously |
+| **Semantic search** | FAISS similarity search with top-K chunk retrieval |
+| **Query routing** | Automatically detects intent — Q&A, file listing, or summarization |
+| **Streaming answers** | LLM responses streamed token-by-token in real time |
+| **Source tracing** | Every answer cites the source file and page number |
+| **Per-file summaries** | Summarize individual documents with a single query |
+| **Local inference** | Fully offline — no OpenAI API or cloud calls |
 
 ---
 
-#  Tech Stack
-
-| Component | Technology |
-|--------|--------|
-| Language | Python |
-| LLM Framework | LangChain |
-| Embeddings | HuggingFace |
-| Vector Database | FAISS / Vector Store |
-| Local LLM | Ollama |
-| UI | Streamlit |
-| NLP Method | Retrieval-Augmented Generation (RAG) |
-
----
-
-#  Project Structure
+## Project Structure
 
 ```
 ai-engineering-copilot/
-
-config.py
-prompts.py
-requirements.txt
-
-src/
 │
-├ embeddings.py
-├ llm.py
-├ loader.py
-├ retriever.py
-├ router.py
-├ splitter.py
-├ summarizer.py
-└ vectordb.py
-
-ui/
-└ streamlit_app.py
+├── config.py              # Model config, paths, chunking parameters
+├── prompts.py             # LLM prompt templates
+│
+├── src/
+│   ├── loader.py          # PDF loading & metadata tagging
+│   ├── splitter.py        # Text chunking
+│   ├── embeddings.py      # HuggingFace embedding model
+│   ├── vectordb.py        # FAISS vector store build & load
+│   ├── retriever.py       # Similarity search & context builder
+│   ├── router.py          # Query intent detection (Q&A / list / summarize)
+│   ├── summarizer.py      # Per-file summarization logic
+│   └── llm.py             # Ollama LLM interface & streaming
+│
+├── data/                  # Place your PDF files here
+├── assests/               # UI screenshots
+└── requirements.txt
 ```
 
 ---
 
-#  Installation
+## Configuration
 
-### 1️⃣ Clone the repository
+Edit `config.py` to adjust key parameters:
+
+```python
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+LLM_MODEL       = "llama3.2"
+CHUNK_SIZE      = 800
+CHUNK_OVERLAP   = 150
+TOP_K           = 4
+```
+
+---
+
+## Setup & Run
+
+**Prerequisites:** Python 3.8+, [Ollama](https://ollama.com/download) installed
 
 ```bash
-git clone https://github.com/MM-Robin/ai-engineering-copilot.git
+# Clone the repository
+git clone https://github.com/MM-Robin/ai-engineering-copilot
 cd ai-engineering-copilot
-```
 
----
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate       # Windows: venv\Scripts\activate
 
-### 2️⃣ Create virtual environment
-
-```bash
-python -m venv venv
-source venv/bin/activate
-```
-
----
-
-### 3️⃣ Install dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Pull the local LLM
+ollama pull llama3.2
+
+# Add your PDFs to the data/ folder, then launch
+streamlit run app.py
 ```
 
 ---
 
-### 4️⃣ Install Ollama
+## Screenshots
 
-Download Ollama
+| Web UI | Q&A with Sources |
+|---|---|
+| ![UI](assests/webUI.png) | ![Q&A](assests/ques_with_soruce1.png) |
 
-```
-https://ollama.com
-```
-
-Pull a model
-
-```bash
-ollama pull llama3
-```
+| Summary Response | Uploaded Files |
+|---|---|
+| ![Summary](assests/summary_response01.png) | ![Files](assests/uploaded_files.png) |
 
 ---
 
-#  Run the Application
+## Tech Stack
 
-```bash
-streamlit run ui/streamlit_app.py
-```
-
-Open the browser and upload your documents.
-
----
-
----
-
-#  Demo
-
-Upload technical PDFs and interact with them through a chat interface.
-
-Example response includes:
-
-• Generated answer  
-• Document source  
-• Page number references  
-
-The system will retrieve relevant document sections and generate answers.
+| Component | Technology |
+|---|---|
+| Framework | LangChain |
+| Embeddings | HuggingFace `all-MiniLM-L6-v2` |
+| Vector Store | FAISS |
+| LLM | Ollama (Llama 3.2 — local) |
+| UI | Streamlit |
+| PDF Parsing | PyPDF |
 
 ---
 
-#  Future Improvements
+## Author
 
-• Streaming responses (ChatGPT-style)  
-• Multi-document smart routing  
-• Faster vector search  
-• Persistent conversation memory  
-• Cloud deployment  
+<div align="center">
 
----
+**Mainuddin Monsur Robin**
+*M.Sc. Information and Communication Engineering — HAW Hamburg*
 
-#  Author
+[![GitHub](https://img.shields.io/badge/GitHub-MM--Robin-181717?style=flat-square&logo=github)](https://github.com/MM-Robin)
 
-**Mainuddin Robin**
-
----
+</div>
